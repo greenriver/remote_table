@@ -16,7 +16,7 @@ class RemoteTable
         else
           raise ::ArgumentError, "Unrecognized compression #{compression}"
         end
-        ::FileUtils.rm_f input
+        clean_up_if_tmp_file input
         output
       end
       
@@ -27,7 +27,7 @@ class RemoteTable
         else
           raise ::ArgumentError, "Unrecognized packing #{packing}"
         end
-        ::FileUtils.rm_f input
+        clean_up_if_tmp_file input
         output
       end
       
@@ -41,16 +41,16 @@ class RemoteTable
           raise(::RuntimeError, "Expecting #{src} to be a file") unless ::File.file?(src)
           output = ::UnixUtils.tmp_path src
           ::FileUtils.mv src, output
-          ::FileUtils.rm_rf input if ::File.dirname(input).start_with?(::Dir.tmpdir)
+          clean_up_if_tmp_file input
         elsif glob = options[:glob]
           src = ::Dir[input+glob].first
           raise(::RuntimeError, "Expecting #{glob} to find a file in #{input}") unless src and ::File.file?(src)
           output = ::UnixUtils.tmp_path src
           ::FileUtils.mv src, output
-          ::FileUtils.rm_rf input if ::File.dirname(input).start_with?(::Dir.tmpdir)
+          clean_up_if_tmp_file input
         else
-          output = ::UnixUtils.tmp_path input
-          ::FileUtils.mv input, output
+          puts "working inplace"
+          output = input
         end
         output
       end
@@ -65,6 +65,7 @@ class RemoteTable
     end
 
     def in_place(*args)
+      puts "inplace(#{args.join(', ')}"
       bin = args.shift
       tmp_path = ::UnixUtils.send(*([bin,path]+args))
       ::FileUtils.mv tmp_path, path
@@ -90,14 +91,17 @@ class RemoteTable
         @encoded_io.close
       end
       @encoded_io = nil
-      if @path and ::File.exist?(@path)
-        ::FileUtils.rm_f @path
-      end
+      clean_up_if_tmp_file @path
       @path = nil
       @generated = nil
     end
     
     private
+
+
+    def clean_up_if_tmp_file(input)
+      #::FileUtils.rm_rf input if ::File.dirname(input).start_with?(::Dir.tmpdir)
+    end
     
     def generate
       return if @generated
@@ -108,7 +112,11 @@ class RemoteTable
         if ::ENV.has_key?('REMOTE_TABLE_DELAY_BETWEEN_REQUESTS')
           ::Kernel.sleep ::ENV['REMOTE_TABLE_DELAY_BETWEEN_REQUESTS'].to_i
         end
-        tmp_path = ::UnixUtils.curl t.url, t.form_data
+        if not /\A(http|https|ftp|ftps):\/\//.match(t.url) and (local_fullpath=::Pathname.new(t.url))
+          tmp_path = local_fullpath
+        else
+          tmp_path = ::UnixUtils.curl t.url, t.form_data
+        end
         if compression = t.compression
           tmp_path = LocalCopy.decompress tmp_path, compression
         end
