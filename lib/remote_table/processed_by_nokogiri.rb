@@ -23,7 +23,7 @@ class RemoteTable
       rows_processed = 0
 
       
-      xml = nokogiri_class.parse(unescaped_xml_without_soft_hyphens, nil, RemoteTable::EXTERNAL_ENCODING)
+      xml = nokogiri_class.parse(unescaped_xml_without_soft_hyphens, nil, internal_encoding)
       (row_css ? xml.css(row_css) : xml.xpath(row_xpath)).each do |row|
         rows_processed += 1
         if skip > 0 && rows_processed <= skip
