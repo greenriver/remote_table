@@ -18,13 +18,13 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   
   s.add_runtime_dependency 'activesupport', '>=2.3.4'
-  s.add_runtime_dependency 'roo', '>=1.9'
+  s.add_runtime_dependency 'roo', '~> 1.10.0'
   s.add_runtime_dependency 'fixed_width-multibyte', '>=0.2.3'
   s.add_runtime_dependency 'i18n' # activesupport?
   s.add_runtime_dependency 'unix_utils', '>=0.0.8'
   s.add_runtime_dependency 'fastercsv', '>=1.5.0'
   s.add_runtime_dependency 'hash_digest'
-  s.add_runtime_dependency 'nokogiri', '~> 1.5'
+  s.add_runtime_dependency 'nokogiri', '~> 1.5.0'
 
   s.add_development_dependency 'errata', '>=0.2.0'
   s.add_development_dependency 'georuby'
