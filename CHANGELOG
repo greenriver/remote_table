@@ -1,3 +1,122 @@
+3.3.1 / 2014-08-01
+
+* Enhancements
+
+  * Support for JSON endpoints support added to the library
+
+3.3.0 / 2014-01-14
+
+* Breaking changes
+
+  * switch to safer HashDigest.digest3 for #row_hash - BREAKING CHANGE if you use row_hash as a unique id!
+
+3.2.1 / 2014-01-07
+
+* Bug fixes
+
+  * Don't blow up when requiring activesupport (something about "uninitialized constant ActiveSupport::Deprecation::MethodWrapper")
+
+3.2.0 / 2014-01-06
+
+* Breaking changes
+
+  * switch to faster HashDigest.digest2 for #row_hash - BREAKING CHANGE if you use row_hash as a unique id!
+
+3.1.0 / 2014-01-06
+
+* Breaking changes
+
+  * Stop requiring rubyzip2 on behalf of Roo per @rossmeissl https://github.com/seamusabshere/remote_table/issues/15 ... you may have to require it yourself
+
+* Enhancements
+
+  * by default, treat single and double quotes as "not special" in pipe- or tab-delimited files - thanks @dwillis https://github.com/seamusabshere/remote_table/pull/14
+
+3.0.0 / 2013-11-26
+
+* Breaking changes
+
+  * Include columns with blank headers as "untitled_N"
+  * skip blank lines at the top of CSV files when looking for headers [rc2]
+  * require rubyzip2 for Roo compatibility with Ruby 1.9 [rc2]
+  * :parser object must respond to #call(row), not #parse(row) [rc1]
+  * Whitespace now automatically "normalized" (/\s+/ -> ' ', stripped) for CSV [rc1]
+  * Strip whitespace from headers unless you provide them as an array [beta]
+  * Not passing anything options on to CSV... use :delimiter instead of :col_sep [beta]
+  * Just use :encoding to specify a file's internal/initial/original encoding. No more :internal_encoding, this was jargony. [alpha]
+  * No more shapefile support - hard to imagine a shapefile as a table [alpha]
+  * No more :transform, legacy or not [alpha]
+  * For :errata, now you pass an object that responds to #rejects?(row) and #correct!(row) [alpha]
+  * No more :errata_settings [alpha]
+
+* Enhancements
+
+  * eagerly load format-specific methods (instead of waiting for #each to be called) [rc2]
+  * use new Roo class names (Roo::OpenOffice instead of Roo::Openoffice) [rc2]
+  * Support relative paths with spaces [beta]
+  * :parser option takes an object that responds to #parse(row) and returns an array of one or more rows. [alpha]
+  * RemoteTable.transpose(url, key_key, value_key) helper [alpha]
+
+* Bug fixes
+
+  * pass CSV options to header parser - before, options like delimiter weren't passed so it couldn't read TSVs [rc2]
+
+3.0.0.rc2 / 2013-08-30
+
+* Breaking changes
+
+  * skip blank lines at the top of CSV files when looking for headers
+  * require rubyzip2 for Roo compatibility with Ruby 1.9
+
+* Enhancements
+
+  * eagerly load format-specific methods (instead of waiting for #each to be called)
+  * use new Roo class names (Roo::OpenOffice instead of Roo::Openoffice)
+
+* Bug fixes
+
+  * pass CSV options to header parser - before, options like delimiter weren't passed so it couldn't read TSVs
+
+3.0.0.rc1 / 2013-08-08
+
+* Breaking changes
+
+  * :parser object must respond to #call(row), not #parse(row)
+  * Whitespace now automatically "normalized" (/\s+/ -> ' ', stripped) for CSV
+
+3.0.0.beta / 2013-07-30
+
+* Breaking changes
+
+  * Strip whitespace from headers unless you provide them as an array
+  * Not passing anything options on to CSV... use :delimiter instead of :col_sep
+  * Include columns with blank headers as "empty_N"
+
+* Enhancements
+
+  * Support relative paths with spaces
+
+3.0.0.alpha / 2013-07-25
+
+* Breaking changes
+
+  * Just use :encoding to specify a file's internal/initial/original encoding. No more :internal_encoding, this was jargony.
+  * No more shapefile support - hard to imagine a shapefile as a table
+  * No more :transform, legacy or not
+  * For :errata, now you pass an object that responds to #rejects?(row) and #correct!(row)
+  * No more :errata_settings
+
+* Enhancements
+
+  * :parser option takes an object that responds to #parse(row) and returns an array of one or more rows.
+  * RemoteTable.transpose(url, key_key, value_key) helper
+
+2.1.2 / 2013-10-08
+
+* Bug fixes
+
+  * Correctly detect format from filename - don't get confused if a filename has "xls" in it (thanks @activefx #10)
+
 2.1.1 / 2013-03-25
 
 * Enhancements

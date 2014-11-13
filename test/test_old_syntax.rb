@@ -5,30 +5,30 @@ $test2_rows_with_blanks = [
   { 'header4' => '1 at 4', 'header5' => '1 at 5', 'header6' => '1 at 6' },
   { 'header4' => '', 'header5' => '', 'header6' => '' },
   { 'header4' => '2 at 4', 'header5' => '2 at 5', 'header6' => '2 at 6' },
-]
+].map { |hsh| hsh.merge('untitled_1' => '') }
 $test2_rows = [
   { 'header4' => '1 at 4', 'header5' => '1 at 5', 'header6' => '1 at 6' },
   { 'header4' => '2 at 4', 'header5' => '2 at 5', 'header6' => '2 at 6' },
-]
+].map { |hsh| hsh.merge('untitled_1' => '') }
 $test2_rows_with_blanks.freeze
 $test2_rows.freeze
 
 describe RemoteTable do
   describe "when using old-style syntax" do
     it "open an XLSX like an array (numbered columns)" do
-      t = RemoteTable.new(:url => 'www.customerreferenceprogram.org/uploads/CRP_RFP_template.xlsx', :headers => false)
+      t = RemoteTable.new('test/data/backup/http___www.customerreferenceprogram.org_uploads_CRP_RFP_template.xlsx', :headers => false)
       t.rows[0][0].must_equal "Requirements"
       t.rows[5][0].must_equal "Software-As-A-Service"
     end
 
     it "open an XLSX with custom headers" do
-      t = RemoteTable.new(:url => 'www.customerreferenceprogram.org/uploads/CRP_RFP_template.xlsx', :headers => %w{foo bar baz})
+      t = RemoteTable.new('test/data/backup/http___www.customerreferenceprogram.org_uploads_CRP_RFP_template.xlsx', :headers => %w{foo bar baz})
       t.rows[0]['foo'].must_equal "Requirements"
       t.rows[5]['foo'].must_equal "Software-As-A-Service"
     end
 
     it "open an XLSX" do
-      t = RemoteTable.new(:url => 'www.customerreferenceprogram.org/uploads/CRP_RFP_template.xlsx')
+      t = RemoteTable.new('test/data/backup/http___www.customerreferenceprogram.org_uploads_CRP_RFP_template.xlsx')
       t.rows[5]["Requirements"].must_equal "Secure encryption of all data"
     end
     
@@ -43,8 +43,9 @@ describe RemoteTable do
     end
     
     it "ignore UTF-8 byte order marks" do
-      t = RemoteTable.new :url => 'http://www.freebase.com/type/exporttypeinstances/base/horses/horse_breed?page=0&filter_mode=type&filter_view=table&show%01p%3D%2Ftype%2Fobject%2Fname%01index=0&show%01p%3D%2Fcommon%2Ftopic%2Fimage%01index=1&show%01p%3D%2Fcommon%2Ftopic%2Farticle%01index=2&sort%01p%3D%2Ftype%2Fobject%2Ftype%01p%3Dlink%01p%3D%2Ftype%2Flink%2Ftimestamp%01index=false&=&exporttype=csv-8'
-      t.rows.first['Name'].must_equal 'Tawleed'
+      t = RemoteTable.new 'test/data/bom.csv'
+      t.rows[0]['one'].must_equal '1'
+      t.rows[0]['two'].must_equal '2'
     end
     
     # this will die with an error about libcurl if your curl doesn't support ssl
@@ -65,19 +66,6 @@ describe RemoteTable do
       t.rows.first['Manufacturer'].must_equal 'EMBRAER'
       t.rows.last['Designator'].must_equal 'EZKC'
       t.rows.last['Model'].must_equal 'EZ King Cobra'
-    end
-    
-    it "hash rows without paying attention to order" do
-      x = ActiveSupport::OrderedHash.new
-      x[:a] = 1
-      x[:b] = 2
-    
-      y = ActiveSupport::OrderedHash.new
-      y[:b] = 2
-      y[:a] = 1
-    
-      Marshal.dump(x).wont_equal Marshal.dump(y)
-      RemoteTable::Transform.row_hash(y).must_equal RemoteTable::Transform.row_hash(x)
     end
     
     it "open a Google Docs url (as a CSV)" do
@@ -152,7 +140,7 @@ describe RemoteTable do
       t.rows.all? { |row| row.keys.all?(&:present?) }.must_equal true
       # correct values
       t.rows.each_with_index do |row, index|
-        $test2_rows[index].must_equal row.except('row_hash')
+        $test2_rows[index].except('untitled_1').must_equal row.except('row_hash')
       end
     end
     
@@ -171,7 +159,7 @@ describe RemoteTable do
       t.rows.all? { |row| row.keys.all?(&:present?) }.must_equal true
       # correct values
       t.rows.each_with_index do |row, index|
-        $test2_rows_with_blanks[index].must_equal row.except('row_hash')
+        $test2_rows_with_blanks[index].except('untitled_1').must_equal row.except('row_hash')
       end
     end
     

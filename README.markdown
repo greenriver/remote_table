@@ -1,6 +1,6 @@
 # remote_table
 
-Open Google Docs spreadsheets, local or remote XLSX, XLS, ODS, CSV (comma separated), TSV (tab separated), SHP (ESRI shapefiles), other delimited, fixed-width files.
+Open Google Docs spreadsheets, local or remote XLSX, XLS, ODS, CSV (comma separated), TSV (tab separated), other delimited, fixed-width files.
 
 Tested on MRI 1.8, MRI 1.9, and JRuby 1.6.7+. Thread-safe.
 
@@ -117,6 +117,11 @@ You can call <code>symbolize_keys</code> yourself, but we don't do it automatica
     <td>XML</td>
     <td>The idea is to set up a <code>:row_[xpath|css]</code> and (optionally) a <code>:column_[xpath|css]</code>.</td>
     <td><a href="http://nokogiri.org/">nokogiri</a></td>
+  </tr>
+  <tr>
+    <td>JSON</td>
+    <td>Force JSON format using <code>format: :json</code> and define root nodes using <code>root_node: 'data'</code></td>
+    <td><a href="http://www.ruby-doc.org/stdlib-2.0.0/libdoc/json/rdoc/JSON.html">JSON</a></td>
   </tr>
 </table>
 
@@ -336,6 +341,9 @@ Everything is forced into UTF-8. You can improve the quality of the conversion b
     RemoteTable.new('http://www.eia.doe.gov/emeu/recs/recspubuse05/datafiles/RECS05alldata.csv',
                     :headers => :upcase)
 
+    # Public albums from the Facebook Engineering Team
+    RemoteTable.new('https://graph.facebook.com/Engineering/albums', format: :json, root_node: 'data')
+
     # ...and more from the tests...
 
     RemoteTable.new 'http://spreadsheets.google.com/pub?key=t5HM1KbaRngmTUbntg8JwPA&single=true&gid=0'
@@ -441,12 +449,6 @@ Everything is forced into UTF-8. You can improve the quality of the conversion b
                                 [ 'spacer',  1 ],
                                 [ 'header1', 10, { :type => :string } ]]
 
-    # ESRI Shapefile from NREL
-    require 'geo_ruby'
-    require 'dbf'
-    RemoteTable.new 'http://www.nrel.gov/gis/cfm/data/GIS_Data_Technology_Specific/United_States/Solar/High_Resolution/Lower_48_DNI_High_Resolution.zip',
-      :format => :shp
-
 ## Requirements
 
 * Unix tools like curl, iconv, perl, cat, cut, tail, etc. accessible from your `$PATH`
@@ -455,7 +457,6 @@ Everything is forced into UTF-8. You can improve the quality of the conversion b
 ## Wishlist
 
 * Win32 compat
-* The new "custom parser" syntax (aka transformer) hasn't been defined yet... only the old-style syntax is available
 
 ## Authors
 

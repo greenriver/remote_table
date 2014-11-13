@@ -16,7 +16,7 @@ class RemoteTable
         else
           raise ::ArgumentError, "Unrecognized compression #{compression}"
         end
-        clean_up_if_tmp_file input
+        ::FileUtils.rm_f input
         output
       end
       
@@ -27,7 +27,7 @@ class RemoteTable
         else
           raise ::ArgumentError, "Unrecognized packing #{packing}"
         end
-        clean_up_if_tmp_file input
+        ::FileUtils.rm_f input
         output
       end
       
@@ -41,16 +41,16 @@ class RemoteTable
           raise(::RuntimeError, "Expecting #{src} to be a file") unless ::File.file?(src)
           output = ::UnixUtils.tmp_path src
           ::FileUtils.mv src, output
-          clean_up_if_tmp_file input
+          ::FileUtils.rm_rf input if ::File.dirname(input).start_with?(::Dir.tmpdir)
         elsif glob = options[:glob]
           src = ::Dir[input+glob].first
           raise(::RuntimeError, "Expecting #{glob} to find a file in #{input}") unless src and ::File.file?(src)
           output = ::UnixUtils.tmp_path src
           ::FileUtils.mv src, output
-          clean_up_if_tmp_file input
+          ::FileUtils.rm_rf input if ::File.dirname(input).start_with?(::Dir.tmpdir)
         else
-          puts "working inplace"
-          output = input
+          output = ::UnixUtils.tmp_path input
+          ::FileUtils.mv input, output
         end
         output
       end
@@ -65,7 +65,6 @@ class RemoteTable
     end
 
     def in_place(*args)
-      puts "inplace(#{args.join(', ')}"
       bin = args.shift
       tmp_path = ::UnixUtils.send(*([bin,path]+args))
       ::FileUtils.mv tmp_path, path
@@ -79,7 +78,7 @@ class RemoteTable
     def encoded_io
       @encoded_io || @encoded_io_mutex.synchronize do
         @encoded_io ||= if ::RUBY_VERSION >= '1.9'
-          ::File.open path, 'rb', :internal_encoding => t.internal_encoding, :external_encoding => RemoteTable::EXTERNAL_ENCODING
+          ::File.open path, 'rb', :internal_encoding => t.encoding, :external_encoding => RemoteTable::EXTERNAL_ENCODING
         else
           ::File.open path, 'rb'
         end
@@ -91,18 +90,15 @@ class RemoteTable
         @encoded_io.close
       end
       @encoded_io = nil
-      clean_up_if_tmp_file @path
+      if @path and ::File.exist?(@path)
+        ::FileUtils.rm_f @path
+      end
       @path = nil
       @generated = nil
     end
     
     private
 
-
-    def clean_up_if_tmp_file(input)
-      #::FileUtils.rm_rf input if ::File.dirname(input).start_with?(::Dir.tmpdir)
-    end
-    
     def generate
       return if @generated
       @generate_mutex.synchronize do
