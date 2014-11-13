@@ -35,7 +35,7 @@ class RemoteTable
         else
           [row]
         end.map do |cell|
-          memo = cell.content.dup
+          memo = other_options[:cell_content_processor] ? other_options[:cell_content_processor].call(cell) : cell.content.dup
           memo = assume_utf8 memo
           memo = RemoteTable.normalize_whitespace memo
           if not some_value_present and not keep_blank_rows and memo.present?
