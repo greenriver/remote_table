@@ -108,11 +108,7 @@ class RemoteTable
         if ::ENV.has_key?('REMOTE_TABLE_DELAY_BETWEEN_REQUESTS')
           ::Kernel.sleep ::ENV['REMOTE_TABLE_DELAY_BETWEEN_REQUESTS'].to_i
         end
-        if not /\A(http|https|ftp|ftps):\/\//.match(t.url) and (local_fullpath=::Pathname.new(t.url))
-          tmp_path = local_fullpath
-        else
-          tmp_path = ::UnixUtils.curl t.url, t.form_data
-        end
+        tmp_path = ::UnixUtils.curl t.url, t.form_data
         if compression = t.compression
           tmp_path = LocalCopy.decompress tmp_path, compression
         end
